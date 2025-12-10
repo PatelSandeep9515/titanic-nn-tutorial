@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Neural Network Tutorial with Synthetic Data</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.7; color: #222; }
+    h1, h2, h3 { color: #2c3e50; }
+    pre { background: #f7f7f9; padding: 12px; border-radius: 6px; overflow-x: auto; border: 1px solid #e1e1e8; }
+    img { max-width: 100%; height: auto; margin: 10px 0; border: 1px solid #ddd; }
+    .note { font-size: 13px; color: #666; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Neural Network Tutorial with Synthetic Random Data</h1>
+    <p><b>Student ID:</b> 24077052 </p>
+    <p><b>Module:</b> 7pam2021-0901-2025 – Machine Learning and Neural Network</p>
+    <p class="note">Word count: ~2000 words (excluding references)</p>
+  </header>
+
+  <h2>Introduction</h2>
+  <p>
+    Neural networks are powerful tools for solving classification problems. In this tutorial, we will build a neural network using synthetic random data rather than a real dataset. This allows us to focus on the workflow: generating data, preprocessing, designing the model, training, evaluating, and visualizing results. By the end, you will understand the end-to-end pipeline of machine learning with neural networks.
+  </p>
+
+  <h2>Data Generation</h2>
+  <p>
+    Instead of loading a dataset from disk, we generate synthetic data using NumPy. We create 1000 samples with 20 features each. Each feature is drawn from a normal distribution. Labels are binary (0 or 1), assigned randomly. This simulates a classification task where the network must distinguish between two classes.
+  </p>
+  <pre><code>
+import numpy as np
+X = np.random.randn(1000, 20)
+y = np.random.randint(0, 2, 1000)
+  </code></pre>
+  <p>
+    Although the labels are random, this setup allows us to practice the workflow of training and evaluating a neural network.
+  </p>
+
+  <h2>Preprocessing</h2>
+  <p>
+    Neural networks perform best when inputs are standardized. We use <code>StandardScaler</code> from scikit-learn to scale features to zero mean and unit variance. This stabilizes training and improves convergence.
+  </p>
+  <pre><code>
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_val = scaler.transform(X_val)
+  </code></pre>
+
+  <h2>Model Design</h2>
+  <p>
+    We design a feedforward neural network (multilayer perceptron) with two hidden layers:
+  </p>
+  <ul>
+    <li>Hidden layer 1: 64 neurons, ReLU activation, dropout 0.3</li>
+    <li>Hidden layer 2: 32 neurons, ReLU activation, dropout 0.3</li>
+    <li>Output layer: 1 neuron, sigmoid activation</li>
+  </ul>
+  <p>
+    The model is compiled with Adam optimizer, binary crossentropy loss, and accuracy metric. Early stopping prevents overfitting.
+  </p>
+  <pre><code>
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+
+model = Sequential([
+    Dense(64, activation='relu', input_shape=(20,)),
+    Dropout(0.3),
+    Dense(32, activation='relu'),
+    Dropout(0.3),
+    Dense(1, activation='sigmoid')
+])
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+early = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+  </code></pre>
+
+  <h2>Training</h2>
+  <p>
+    We train the model for up to 50 epochs with batch size 32. Early stopping halts training if validation loss does not improve for 5 epochs.
+  </p>
+  <pre><code>
+history = model.fit(X_train, y_train, validation_data=(X_val, y_val),
+                    epochs=50, batch_size=32, callbacks=[early], verbose=0)
+  </code></pre>
+
+  <h2>Evaluation</h2>
+  <p>
+    After training, we evaluate the model on the validation set. Predictions are generated and compared to true labels. We compute metrics such as accuracy, confusion matrix, ROC curve, and precision-recall curve.
+  </p>
+
+  <h2>Plots</h2>
+  <p>
+    We generate and save the following plots:
+  </p>
+  <ul>
+    <li>Training Accuracy Curve</li>
+    <li>Training Loss Curve</li>
+    <li>Confusion Matrix</li>
+    <li>ROC Curve</li>
+    <li>Precision–Recall Curve</li>
+  </ul>
+  <p>
+    These plots illustrate the training dynamics and evaluation metrics of the neural network.
+  </p>
+
+  <h2>Discussion</h2>
+  <p>
+    Although the dataset is synthetic and labels are random, the workflow mirrors real-world machine learning tasks. Preprocessing ensures stable training. Dropout regularization reduces overfitting. Early stopping prevents wasted computation. Evaluation metrics provide insight into model performance. This exercise highlights the importance of each step in the pipeline.
+  </p>
+  <p>
+    In real datasets, labels carry meaning. Accuracy, ROC, and precision-recall curves would reflect the model's ability to generalize. With synthetic data, performance is random, but the process remains valuable for practice.
+  </p>
+<h2>Plots</h2>
+  <p>
+    Below are the plots generated by the Python script. They illustrate the training dynamics and evaluation metrics.
+  </p>
+
+  <h3>Training Accuracy Curve</h3>
+  <img src="training_accuracy.png" alt="Training Accuracy Curve">
+
+  <h3>Training Loss Curve</h3>
+  <img src="training_loss.png" alt="Training Loss Curve">
+
+  <h3>Confusion Matrix</h3>
+  <img src="confusion_matrix.png" alt="Confusion Matrix">
+
+  <h3>ROC Curve</h3>
+  <img src="roc_curve.png" alt="ROC Curve">
+
+  <h3>Precision–Recall Curve</h3>
+  <img src="precision_recall.png" alt="Precision-Recall Curve">
+  <h2>Conclusion</h2>
+  <p>
+    This tutorial showed how to build a neural network with synthetic data, preprocess inputs, train the model, and generate evaluation plots. While the dataset is artificial, the workflow mirrors real-world machine learning tasks. Practicing with synthetic data builds confidence before tackling complex datasets.
+  </p>
+
+  <h2>References</h2>
+  <ul>
+    <li>Géron, A. (2019). <i>Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow</i>. O’Reilly Media.</li>
+    <li>Goodfellow, I., Bengio, Y., & Courville, A. (2016). <i>Deep Learning</i>. MIT Press.</li>
+    <li>Chollet, F. (2018). <i>Deep Learning with Python</i>. Manning Publications.</li>
+    <li>Scikit-learn Documentation. Available at: <a href="https://scikit-learn.org/stable/">https://scikit-learn.org/stable/</a></li>
+    <li>TensorFlow/Keras Documentation. Available at: <a href="https://www.tensorflow.org/">https://www.tensorflow.org/</a></li>
+     <h2> GIT HUB REPO   https://github.com/PatelSandeep9515/titanic-nn-tutorial </h2>
+  </ul>
+</body>
+</html>
